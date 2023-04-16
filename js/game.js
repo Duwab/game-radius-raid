@@ -702,26 +702,48 @@ $.mouseupcb = function( e ) {
 	$.mouse.down = 0;
 };
 
+var keyCodes = {
+	a: 65,
+	d: 68,
+	e: 69,
+	q: 81,
+	s: 83,
+	w: 87,
+	z: 90,
+	space: 32,
+	arrow_up: 38,
+	arrow_right: 39,
+	arrow_down: 40,
+	arrow_left: 37,
+}
+
+var qwertyDirections = [keyCodes.w, keyCodes.d, keyCodes.s, keyCodes.a];
+var azertyDirections = [keyCodes.z, keyCodes.d, keyCodes.s, keyCodes.q];
+
+var currentKeyBoard = azertyDirections;
+
 $.keydowncb = function( e ) {
 	var e = ( e.keyCode ? e.keyCode : e.which );
-	if( e === 38 || e === 87 ){ $.keys.state.up = 1; }
-	if( e === 39 || e === 68 ){ $.keys.state.right = 1; }
-	if( e === 40 || e === 83 ){ $.keys.state.down = 1; }
-	if( e === 37 || e === 65 ){ $.keys.state.left = 1; }
+	if( e === 38 || e === currentKeyBoard[0] ){ $.keys.state.up = 1; }
+	if( e === 39 || e === currentKeyBoard[1] ){ $.keys.state.right = 1; }
+	if( e === 40 || e === currentKeyBoard[2] ){ $.keys.state.down = 1; }
+	if( e === 37 || e === currentKeyBoard[3] ){ $.keys.state.left = 1; }
 	if( e === 70 ){ $.keys.state.f = 1; }
 	if( e === 77 ){ $.keys.state.m = 1; }
 	if( e === 80 ){ $.keys.state.p = 1; }
+	if( e === keyCodes.space ){ $.mouse.down = 1; }
 }
 
 $.keyupcb = function( e ) {
 	var e = ( e.keyCode ? e.keyCode : e.which );
-	if( e === 38 || e === 87 ){ $.keys.state.up = 0; }
-	if( e === 39 || e === 68 ){ $.keys.state.right = 0; }
-	if( e === 40 || e === 83 ){ $.keys.state.down = 0; }
-	if( e === 37 || e === 65 ){ $.keys.state.left = 0; }
+	if( e === 38 || e === currentKeyBoard[0] ){ $.keys.state.up = 0; }
+	if( e === 39 || e === currentKeyBoard[1] ){ $.keys.state.right = 0; }
+	if( e === 40 || e === currentKeyBoard[2] ){ $.keys.state.down = 0; }
+	if( e === 37 || e === currentKeyBoard[3] ){ $.keys.state.left = 0; }
 	if( e === 70 ){ $.keys.state.f = 0; }
 	if( e === 77 ){ $.keys.state.m = 0; }
 	if( e === 80 ){ $.keys.state.p = 0; }
+	if( e === keyCodes.space ){ $.mouse.down = 0; }
 }
 
 $.resizecb = function( e ) {
