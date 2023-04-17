@@ -93,6 +93,7 @@ $.init = function() {
 	$.states = {};
 	$.state = '';
 	$.enemies = [];
+	$.players = [];
 	$.bullets = [];
 	$.explosions = [];
 	$.powerups = [];	
@@ -175,6 +176,7 @@ $.reset = function() {
 	$.score = 0;
 
 	$.hero = new $.Hero();
+	$.players = $.playersControls.map((control, i) => new $.Player(i));
 
 	$.levelPops.push( new $.LevelPop( {
 		level: 1
@@ -433,6 +435,7 @@ $.renderInterface = function() {
 	$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height );
 	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
 	$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height / 2 );
+	// todo: interface for all players
 	$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 40%, 1)';
 	$.ctxmg.fillRect( healthBar.x, healthBar.y, $.hero.life * healthBar.width, healthBar.height );
 	$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 75%, 1)';
@@ -615,6 +618,7 @@ $.renderMinimap = function() {
 	$.ctxmg.fillStyle = '#fff';
 	$.ctxmg.fill();
 
+	// todo: render players in minimap
 	$.ctxmg.fillStyle = $.hero.fillStyle;
 	$.ctxmg.fillRect( $.minimap.x + Math.floor( $.hero.x * $.minimap.scale ), $.minimap.y + Math.floor( $.hero.y * $.minimap.scale ), 2, 2 );
 
@@ -711,39 +715,55 @@ var keyCodes = {
 	w: 87,
 	z: 90,
 	space: 32,
-	arrow_up: 38,
-	arrow_right: 39,
-	arrow_down: 40,
-	arrow_left: 37,
+	up: 38,
+	right: 39,
+	down: 40,
+	left: 37,
 }
 
-var qwertyDirections = [keyCodes.w, keyCodes.d, keyCodes.s, keyCodes.a];
-var azertyDirections = [keyCodes.z, keyCodes.d, keyCodes.s, keyCodes.q];
+var directionNames =   ['up',       'right',    'down',     'left',     'shoot'];
+var qwertyDirections = [keyCodes.w, keyCodes.d, keyCodes.s, keyCodes.a, keyCodes.q];
+var azertyDirections = [keyCodes.z, keyCodes.d, keyCodes.s, keyCodes.q, keyCodes.a];
 
-var currentKeyBoard = azertyDirections;
+$.playersControls = [
+	{
+		codes: azertyDirections,
+		state: {},
+	},
+	{
+		codes: [keyCodes.up, keyCodes.right, keyCodes.down, keyCodes.left, keyCodes.space],
+		state: {},
+	},
+];
 
 $.keydowncb = function( e ) {
 	var e = ( e.keyCode ? e.keyCode : e.which );
-	if( e === 38 || e === currentKeyBoard[0] ){ $.keys.state.up = 1; }
-	if( e === 39 || e === currentKeyBoard[1] ){ $.keys.state.right = 1; }
-	if( e === 40 || e === currentKeyBoard[2] ){ $.keys.state.down = 1; }
-	if( e === 37 || e === currentKeyBoard[3] ){ $.keys.state.left = 1; }
 	if( e === 70 ){ $.keys.state.f = 1; }
 	if( e === 77 ){ $.keys.state.m = 1; }
 	if( e === 80 ){ $.keys.state.p = 1; }
-	if( e === keyCodes.space ){ $.mouse.down = 1; }
+
+	for (var playerControl of $.playersControls) {
+		for (var [i, name] of Object.entries(directionNames)) {
+			if (e === playerControl.codes[i]) {
+				playerControl.state[name] = 1;
+			}
+		}
+	}
 }
 
 $.keyupcb = function( e ) {
 	var e = ( e.keyCode ? e.keyCode : e.which );
-	if( e === 38 || e === currentKeyBoard[0] ){ $.keys.state.up = 0; }
-	if( e === 39 || e === currentKeyBoard[1] ){ $.keys.state.right = 0; }
-	if( e === 40 || e === currentKeyBoard[2] ){ $.keys.state.down = 0; }
-	if( e === 37 || e === currentKeyBoard[3] ){ $.keys.state.left = 0; }
 	if( e === 70 ){ $.keys.state.f = 0; }
 	if( e === 77 ){ $.keys.state.m = 0; }
 	if( e === 80 ){ $.keys.state.p = 0; }
-	if( e === keyCodes.space ){ $.mouse.down = 0; }
+
+	for (var playerControl of $.playersControls) {
+		for (var [i, name] of Object.entries(directionNames)) {
+			if (e === playerControl.codes[i]) {
+				playerControl.state[name] = 0;
+			}
+		}
+	}
 }
 
 $.resizecb = function( e ) {
@@ -792,6 +812,7 @@ $.updateScreen = function() {
 		ySnap,
 		yModify;
 
+	// todo: move screen depending on players positions
 	if( $.hero.x < $.cw / 2 ) {
 		xModify = $.hero.x / $.cw;
 	} else if( $.hero.x > $.ww - $.cw / 2 ) {
@@ -898,6 +919,7 @@ $.updateLevel = function() {
 };
 
 $.updatePowerupTimers = function() {
+	//todo: manage powerups BY players or for ALL player
 	// HEALTH
 	if( $.powerupTimers[ 0 ] > 0 ){
 		if( $.hero.life < 1 ) {
@@ -1351,6 +1373,7 @@ $.setupStates = function() {
 			i = $.textPops.length; while( i-- ){ $.textPops[ i ].update( i ) }
 			i = $.levelPops.length; while( i-- ){ $.levelPops[ i ].update( i ) }
 			i = $.bullets.length; while( i-- ){ $.bullets[ i ].update( i ) }
+			i = $.players.length; while( i-- ){ $.players[ i ].update( i ) }
 		$.hero.update();
 
 		// render entities
@@ -1363,6 +1386,7 @@ $.setupStates = function() {
 		i = $.particleEmitters.length; while( i-- ){ $.particleEmitters[ i ].render( i ) }
 		i = $.textPops.length; while( i-- ){ $.textPops[ i ].render( i ) }		
 		i = $.bullets.length; while( i-- ){ $.bullets[ i ].render( i ) }
+		i = $.players.length; while( i-- ){ $.players[ i ].render( i ) }
 		$.hero.render();		
 		$.ctxmg.restore();		
 		i = $.levelPops.length; while( i-- ){ $.levelPops[ i ].render( i ) }
@@ -1370,6 +1394,7 @@ $.setupStates = function() {
 		$.renderMinimap();
 
 		// handle gameover
+		// todo: if all players are dead...
 		if( $.hero.life <= 0 ) {
 			var alpha = ( ( $.gameoverTick / $.gameoverTickMax ) * 0.8 );
 				alpha = Math.min( 1, Math.max( 0, alpha ) );
@@ -1384,6 +1409,7 @@ $.setupStates = function() {
 			if( !$.gameoverExplosion ) {
 				$.audio.play( 'death' );
 				$.rumble.level = 25;
+				// todo: player destruction
 				$.explosions.push( new $.Explosion( {
 					x: $.hero.x + $.util.rand( -10, 10 ),
 					y: $.hero.y + $.util.rand( -10, 10 ),
