@@ -50,7 +50,13 @@
 				<canvas id="cfg"></canvas>
 			</div>
 		</div>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+		<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 		<script>var $ = {};</script>
+		<script>window.SOCKET_URL = 'http://localhost:8080';</script>
+		<script>window.BASE_URL = 'http://localhost:8080';</script>
+		<!-- <script>window.SOCKET_URL = '__SOCKET_URL__';</script> -->
+		<!-- <script>window.BASE_URL = '__BASE_URL__';</script> -->
 		<script src="js/jsfxr.js"></script>
 		<script src="js/util.js"></script>
 		<script src="js/storage.js"></script>
@@ -68,6 +74,8 @@
 		<script src="js/textpop.js"></script>
 		<script src="js/levelpop.js"></script>
 		<script src="js/button.js"></script>
+		<script src="js/room.js"></script>
+		<script src="js/room-manager.js"></script>
 		<script src="js/game.js"></script>
 	</body>
 </html>

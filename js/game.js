@@ -113,6 +113,7 @@ $.init = function() {
 	$.renderFavicon();
 	$.setState( 'menu' );
 	$.loop();
+	$.roomManager = new $.RoomManager(SOCKET_URL)
 };
 
 /*==============================================================================
@@ -1362,7 +1363,7 @@ $.setupStates = function() {
 		$.updateScreen();
 		$.updateLevel();
 		$.updatePowerupTimers();
-		$.spawnEnemies();
+		// $.spawnEnemies();
 		$.enemyOffsetMod += ( $.slow ) ? $.dt / 3 : $.dt;
 		
 		// update entities	
