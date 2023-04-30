@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
     nginx:
-        container_name: nginx
+        container_name: radius-raid
         image: nginx
         ports:
             - "80:80"
