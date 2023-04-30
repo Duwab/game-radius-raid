@@ -101,6 +101,7 @@ $.init = function() {
 	$.textPops = [];
 	$.levelPops = [];
 	$.powerupTimers = [];
+	$.roomManager = new $.RoomManager(SOCKET_URL);
 
 	$.resizecb();
 	$.bindEvents();
@@ -113,7 +114,6 @@ $.init = function() {
 	$.renderFavicon();
 	$.setState( 'menu' );
 	$.loop();
-	$.roomManager = new $.RoomManager(SOCKET_URL)
 };
 
 /*==============================================================================
@@ -177,7 +177,7 @@ $.reset = function() {
 	$.score = 0;
 
 	$.hero = new $.Hero();
-	$.players = $.playersControls.map((control, i) => new $.Player(i));
+	$.roomManager.room.resetPlayers();
 
 	$.levelPops.push( new $.LevelPop( {
 		level: 1

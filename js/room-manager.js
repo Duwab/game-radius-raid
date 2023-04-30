@@ -9,27 +9,64 @@ $.RoomManager = function(url) {
         this.init();
     });
 
-    this.socket.on('device-join', (...args) => console.log('device-join', ...args));
-    this.socket.on('device-leave', (...args) => console.log('device-leave', ...args));
-    this.socket.on('device-disconnected', (...args) => console.log('device-disconnected', ...args));
+    this.room = new $.Room();
+    this.devices = {};
+
+    this.socket.on('device-join', ({deviceId}) => {
+        console.log('device-join', deviceId);
+        if (!this.devices[deviceId]) {
+            this.devices[deviceId] = {
+                id: deviceId,
+                member: true,
+                connected: true,
+            };
+            this.room.onDeviceJoin(deviceId);
+        } else {
+            const isNewMember = !this.devices[deviceId].member;
+            const isReconnectionEvent = !isNewMember && !this.devices[deviceId].connected;
+            this.devices[deviceId].member = true;
+            this.devices[deviceId].connected = true;
+
+            if (isNewMember) {
+                this.room.onDeviceJoin(deviceId);
+            } else if (isReconnectionEvent) {
+                this.room.onDeviceReconnect(deviceId);
+            }
+        }
+    });
+    this.socket.on('device-leave', ({deviceId}) => {
+        console.log('device-leave', deviceId);
+        if (!this.devices[deviceId]) return console.error('unregistered device', deviceId);
+
+        this.devices[deviceId].member = false;
+        this.room.onDeviceLeave(deviceId);
+    });
+    this.socket.on('device-disconnected', ({deviceId}) => {
+        console.log('device-disconnected', deviceId);
+        if (!this.devices[deviceId]) return;
+
+        this.devices[deviceId].connected = false;
+        this.room.onDeviceDisconnected(deviceId);
+    });
     this.socket.on('control', ({
         id,
         action,
         angle,
         intensity,
-        tags,
+        tags = [],
         deviceId,
         roomId,
         ...others
-    }) => console.log('control', id,
-        action,
-        angle,
-        intensity,
-        tags,
-        deviceId,
-        roomId,
-        others,
-    ));
+    }) => {
+        // console.log('control', id, action, angle, intensity, tags, deviceId, roomId, others);
+        const controlName = tags.includes('position') ? 'position' : 'shoot';
+        this.room.onControl(deviceId, {
+            action,
+            angle,
+            intensity,
+            controlName,
+        })
+    });
 }
 
 $.RoomManager.prototype.init = async function() {
