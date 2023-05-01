@@ -1363,7 +1363,7 @@ $.setupStates = function() {
 		$.updateScreen();
 		$.updateLevel();
 		$.updatePowerupTimers();
-		// $.spawnEnemies();
+		$.spawnEnemies();
 		$.enemyOffsetMod += ( $.slow ) ? $.dt / 3 : $.dt;
 
 		// update entities

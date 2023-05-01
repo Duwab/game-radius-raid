@@ -66,6 +66,10 @@ $.Room.prototype.onDeviceDisconnected = function(deviceId) {
 $.Room.prototype.getPlayer = function(deviceId) {
     return $.players.find(p => p.id === deviceId);
 };
+$.Room.prototype.getRandomPlayer = function() {
+    const i = Math.floor(Math.random() * $.players.length);
+    return $.players[i];
+};
 $.Room.prototype.resetPlayers = function() {
     $.players = Object.values($.roomManager.devices)
         .map(({id, member}) => member && new $.Player(id))

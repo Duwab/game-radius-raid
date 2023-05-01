@@ -81,6 +81,13 @@ $.definitions.audio = {
 };
 
 /*==============================================================================
+Players
+==============================================================================*/
+$.definitions.players = {
+	vmax: 6
+};
+
+/*==============================================================================
 Enemies
 ==============================================================================*/
 $.definitions.enemies = [
@@ -141,7 +148,7 @@ $.definitions.enemies = [
 			this.vy = Math.sin( this.direction ) * speed;
 		}
 	},
-	{ // Enemy 2 - move directly hero
+	{ // Enemy 2 - move directly to targetPlayer
 		value: 15,
 		speed: 1.5,
 		life: 2,
@@ -153,8 +160,9 @@ $.definitions.enemies = [
 				speed = this.speed / $.slowEnemyDivider;
 			}
 
-			var dx = $.hero.x - this.x,
-				dy = $.hero.y - this.y,
+			var targetPlayer = this.getTargetPlayer();
+			var dx = targetPlayer.x - this.x,
+				dy = targetPlayer.y - this.y,
 				direction = Math.atan2( dy, dx );
 			this.vx = Math.cos( direction ) * speed;
 			this.vy = Math.sin( direction ) * speed;
@@ -173,8 +181,9 @@ $.definitions.enemies = [
 				speed = this.speed / $.slowEnemyDivider;
 			}
 
-			var dx = $.hero.x - this.x,
-				dy = $.hero.y - this.y,
+			var targetPlayer = this.getTargetPlayer();
+			var dx = targetPlayer.x - this.x,
+				dy = targetPlayer.y - this.y,
 				direction = Math.atan2( dy, dx );
 			this.vx = Math.cos( direction ) * speed;
 			this.vy = Math.sin( direction ) * speed;
@@ -233,7 +242,7 @@ $.definitions.enemies = [
 			this.vy = Math.sin( this.direction ) * speed;
 		}
 	},
-	{ // Enemy 5 - stealth, hard to see - move directly hero
+	{ // Enemy 5 - stealth, hard to see - move directly player
 		value: 30,
 		speed: 1,
 		life: 3,
@@ -247,8 +256,9 @@ $.definitions.enemies = [
 				speed = this.speed / $.slowEnemyDivider;
 			}
 
-			var dx = $.hero.x - this.x,
-				dy = $.hero.y - this.y,
+			var targetPlayer = this.getTargetPlayer();
+			var dx = targetPlayer.x - this.x,
+				dy = targetPlayer.y - this.y,
 				direction = Math.atan2( dy, dx );
 			this.vx = Math.cos( direction ) * speed;
 			this.vy = Math.sin( direction ) * speed;
@@ -266,8 +276,9 @@ $.definitions.enemies = [
 				speed = this.speed / $.slowEnemyDivider;
 			}
 
-			var dx = $.hero.x - this.x,
-				dy = $.hero.y - this.y,
+			var targetPlayer = this.getTargetPlayer();
+			var dx = targetPlayer.x - this.x,
+				dy = targetPlayer.y - this.y,
 				direction = Math.atan2( dy, dx );
 			this.vx = Math.cos( direction ) * speed;
 			this.vy = Math.sin( direction ) * speed;
@@ -285,15 +296,16 @@ $.definitions.enemies = [
 				speed = this.speed / $.slowEnemyDivider;
 			}
 
-			var dx = $.hero.x - this.x,
-				dy = $.hero.y - this.y,
+			var targetPlayer = this.getTargetPlayer();
+			var dx = targetPlayer.x - this.x,
+				dy = targetPlayer.y - this.y,
 				direction = Math.atan2( dy, dx );
 			direction = direction + Math.cos( $.tick / 50 ) * 1;
 			this.vx = Math.cos( direction ) * speed;
 			this.vy = Math.sin( direction ) * speed;
 		}
 	},
-	{ // Enemy 8 - strong grower, move to hero
+	{ // Enemy 8 - strong grower, move to player
 		value: 45,
 		speed: 1.5,
 		growth: 0.1,
@@ -310,8 +322,9 @@ $.definitions.enemies = [
 				growth = this.growth / $.slowEnemyDivider;
 			}
 
-			var dx = $.hero.x - this.x,
-				dy = $.hero.y - this.y,
+			var targetPlayer = this.getTargetPlayer();
+			var dx = targetPlayer.x - this.x,
+				dy = targetPlayer.y - this.y,
 				direction = Math.atan2( dy, dx );
 
 			if( Math.sqrt(dx * dx + dy * dy ) > 200 ) {
@@ -330,7 +343,7 @@ $.definitions.enemies = [
 			}
 		}
 	},
-	{ // Enemy 9 - circle around hero
+	{ // Enemy 9 - circle around player
 		value: 50,
 		speed: 0.5,
 		angleSpeed: 0.015,
@@ -338,8 +351,9 @@ $.definitions.enemies = [
 		radius: 20,
 		hue: 60,
 		setup: function() {
-			var dx = this.x - $.hero.x,
-				dy = this.y - $.hero.y;
+			var targetPlayer = this.getTargetPlayer();
+			var dx = this.x - targetPlayer.x,
+				dy = this.y - targetPlayer.y;
 			this.angle = Math.atan2( dy, dx );
 			this.distance = Math.sqrt( dx * dx + dy * dy );
 			if( Math.random() > 0.5 ) {
@@ -357,8 +371,9 @@ $.definitions.enemies = [
 			this.distance -= speed * $.dt;
 			this.angle += angleSpeed * $.dt;
 
-			this.vx = ( ( $.hero.x + Math.cos( this.angle ) * this.distance ) - this.x ) / 50;
-			this.vy = ( ( $.hero.y + Math.sin( this.angle ) * this.distance ) - this.y ) / 50;
+			var targetPlayer = this.getTargetPlayer();
+			this.vx = ( ( targetPlayer.x + Math.cos( this.angle ) * this.distance ) - this.x ) / 50;
+			this.vy = ( ( targetPlayer.y + Math.sin( this.angle ) * this.distance ) - this.y ) / 50;
 		}
 	},
 	{ // Enemy 10 - spawner
@@ -376,8 +391,9 @@ $.definitions.enemies = [
 				speed = this.speed / $.slowEnemyDivider;
 			}
 
-			var dx = $.hero.x - this.x,
-				dy = $.hero.y - this.y,
+			var targetPlayer = this.getTargetPlayer();
+			var dx = targetPlayer.x - this.x,
+				dy = targetPlayer.y - this.y,
 				direction = Math.atan2( dy, dx );
 				direction = direction + Math.cos( $.tick / 50 ) * 1;
 			this.vx = Math.cos( direction ) * speed;

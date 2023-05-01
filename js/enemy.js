@@ -30,7 +30,7 @@ $.Enemy = function( opt ) {
 	if( $.levelDiffOffset > 0 ){
 		this.life += $.levelDiffOffset * 0.25;
 		this.lifeMax = this.life;
-		this.speed += Math.min( $.hero.vmax, $.levelDiffOffset * 0.25 );
+		this.speed += Math.min( $.definitions.players.vmax, $.levelDiffOffset * 0.25 );
 		this.value += $.levelDiffOffset * 5;
 	}
 };
@@ -115,6 +115,25 @@ $.Enemy.prototype.receiveDamage = function( i, val ) {
 		$.kills++;
 		$.enemies.splice( i, 1 );
 	}
+};
+
+/*==============================================================================
+Target
+==============================================================================*/
+$.Enemy.prototype.getTargetPlayer = function() {
+
+	if( this.targetPlayer ) {
+		const isDead = this.targetPlayer.life <= 0;
+		const isLeft = !$.roomManager.room.getPlayer(this.targetPlayer.id);
+		if (isDead || isLeft) {
+			this.targetPlayer = null;
+		}
+	}
+	if (!this.targetPlayer) {
+		this.targetPlayer = $.roomManager.room.getRandomPlayer();
+	}
+
+	return this.targetPlayer;
 };
 
 /*==============================================================================
