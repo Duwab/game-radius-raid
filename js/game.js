@@ -1213,13 +1213,13 @@ $.setupStates = function() {
 		var bottomInfo = $.text( {
 			ctx: $.ctxmg,
 			x: $.cw / 2,
-			y: $.ch - 172,
-			text: 'CREATED BY JACK RUGILE FOR JS13KGAMES 2013',
-			hspacing: 1,
+			y: $.ch - 130,
+			text: `Room: ${$.roomManager.roomId}`.toUpperCase(),
+			hspacing: 2,
 			vspacing: 1,
 			halign: 'center',
 			valign: 'bottom',
-			scale: 1,
+			scale: 3,
 			snap: 1,
 			render: 1
 		} );
