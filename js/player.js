@@ -89,9 +89,10 @@ $.Player.prototype.update = function() {
 		/*==============================================================================
 		Update Direction
 		==============================================================================*/
-		var dx = $.mouse.x - this.x,
-			dy = $.mouse.y - this.y;
-		this.direction = Math.atan2( dy, dx );
+		// var dx = $.mouse.x - this.x,
+		// 	dy = $.mouse.y - this.y;
+		// this.direction = Math.atan2( dy, dx );
+		this.direction = this.control.state.shootAngle || 0;
 
 		/*==============================================================================
 		Fire Weapon
