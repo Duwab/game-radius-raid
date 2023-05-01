@@ -20,7 +20,7 @@ $.Button = function( opt ) {
 	} );
 	this.width = this.lockedWidth;
 	this.height = this.lockedHeight;
-	
+
 	this.sx = this.x - this.width / 2;
 	this.sy = this.y - this.height / 2;
 	this.cx = this.x;
@@ -60,7 +60,7 @@ $.Button.prototype.update = function( i ) {
 /*==============================================================================
 Render
 ==============================================================================*/
-$.Button.prototype.render = function( i ) {	
+$.Button.prototype.render = function( i ) {
 	if( this.hovering ) {
 		$.ctxmg.fillStyle = 'hsla(0, 0%, 10%, 1)';
 		$.ctxmg.fillRect( Math.floor( this.sx ), Math.floor( this.sy ), this.width, this.height );
@@ -90,7 +90,7 @@ $.Button.prototype.render = function( i ) {
 		scale: this.scale,
 		snap: 1,
 		render: true
-	} );	
+	} );
 
 	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.7)';
 	if( this.hovering ) {
