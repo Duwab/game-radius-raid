@@ -1210,7 +1210,7 @@ $.setupStates = function() {
 		$.ctxmg.fill();
 
 		$.ctxmg.beginPath();
-		var bottomInfo = $.text( {
+		var bottomInfo = $.text({
 			ctx: $.ctxmg,
 			x: $.cw / 2,
 			y: $.ch - 130,
@@ -1222,7 +1222,7 @@ $.setupStates = function() {
 			scale: 3,
 			snap: 1,
 			render: 1
-		} );
+		});
 		$.ctxmg.fillStyle = '#666';
 		$.ctxmg.fill();
 

@@ -68,6 +68,6 @@ $.Room.prototype.getPlayer = function(deviceId) {
 };
 $.Room.prototype.resetPlayers = function() {
     $.players = Object.values($.roomManager.devices)
-        .map(({deviceId, member}) => member && new $.Player(deviceId))
+        .map(({id, member}) => member && new $.Player(id))
         .filter(p => p);
 };
