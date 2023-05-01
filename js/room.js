@@ -44,6 +44,7 @@ $.Room.prototype.onControl = function(deviceId, {
         }
     } else if (controlName === 'shoot') {
         player.control.state.shoot = intensity && action !== 'drop';
+        player.control.state.shootAngle = angle;
     }
 }
 
