@@ -6,6 +6,7 @@ $.Room = function({id, token} = {}) {
     this.id = id;
     this.token = token;
     this.lastActiveUser = null;
+    this.refreshDevicesListDisplay();
 }
 
 $.Room.prototype.init = function() {
@@ -52,20 +53,31 @@ $.Room.prototype.onControl = function(deviceId, {
 $.Room.prototype.onDeviceJoin = function(deviceId) {
     console.log('push new player', deviceId);
     $.players.push(new $.Player(deviceId));
+    this.refreshDevicesListDisplay();
 };
 
 $.Room.prototype.onDeviceLeave = function(deviceId) {
     console.log('filter player', deviceId);
     $.players = $.players.filter(p => p.id === deviceId);
-
+    this.refreshDevicesListDisplay();
 };
+
+$.Room.prototype.refreshDevicesListDisplay = () => {
+    const htmls = $.players.map(p => {
+        const deviceInfo = $.roomManager.devices[p.id];
+        return `<span class="player ${!deviceInfo.connected && 'disconnected'}"></span>`;
+    });
+    document.getElementById('players-list').innerHTML = htmls.join('');
+}
 
 $.Room.prototype.onDeviceReconnect = function(deviceId) {
     console.log('device reconnected', deviceId);
+    this.refreshDevicesListDisplay();
 };
 
 $.Room.prototype.onDeviceDisconnected = function(deviceId) {
     console.log('device disconnected', deviceId);
+    this.refreshDevicesListDisplay();
 };
 
 $.Room.prototype.getPlayer = function(deviceId) {
