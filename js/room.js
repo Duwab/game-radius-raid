@@ -52,26 +52,78 @@ $.Room.prototype.onDeviceJoin = function(deviceId) {
     console.log('push new player', deviceId);
     $.players.push(new $.Player(deviceId));
 };
+
 $.Room.prototype.onDeviceLeave = function(deviceId) {
     console.log('filter player', deviceId);
     $.players = $.players.filter(p => p.id === deviceId);
 
 };
+
 $.Room.prototype.onDeviceReconnect = function(deviceId) {
     console.log('device reconnected', deviceId);
 };
+
 $.Room.prototype.onDeviceDisconnected = function(deviceId) {
     console.log('device disconnected', deviceId);
 };
+
 $.Room.prototype.getPlayer = function(deviceId) {
     return $.players.find(p => p.id === deviceId);
 };
+
 $.Room.prototype.getRandomPlayer = function() {
     const i = Math.floor(Math.random() * $.players.length);
     return $.players[i];
 };
+
 $.Room.prototype.resetPlayers = function() {
     $.players = Object.values($.roomManager.devices)
         .map(({id, member}) => member && new $.Player(id))
         .filter(p => p);
 };
+
+$.Room.prototype.getFirstActiveUser = function() {
+    return this.getLivingPlayers()[0];
+};
+
+$.Room.prototype.areAllPlayersDead = function() {
+    if (!$.players.length) return false;
+
+    return this.getLivingPlayers().length === 0;
+};
+
+$.Room.prototype.getLivingPlayers = function() {
+    return $.players.filter(p => {
+        const isAlive = p.life;
+        const deviceInfo = $.roomManager.devices[p.id];
+
+        return isAlive && deviceInfo.connected && deviceInfo.member;
+    });
+};
+
+$.Room.prototype.setPlayersValue = function(path, value) {
+    $.players.forEach(p => {
+        _set(p, path, value);
+    });
+};
+
+$.Room.prototype.forEachPlayer = function(callback) {
+    $.players.forEach(callback);
+};
+
+$.Room.prototype.findPlayer = function(callback) {
+    $.players.find(callback);
+};
+
+const _set = function(obj, path, value) {
+    const keys = path.split('.');
+    let current = obj;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const key = keys[i];
+      if (!(key in current)) {
+        current[key] = {};
+      }
+      current = current[key];
+    }
+    current[keys[keys.length - 1]] = value;
+}

@@ -48,25 +48,27 @@ $.Powerup.prototype.update = function( i ) {
 	/*==============================================================================
 	Check Collection Collision
 	==============================================================================*/
-	if( $.hero.life > 0 && $.util.arcIntersectingRect( $.hero.x, $.hero.y, $.hero.radius + 2, this.x, this.y, this.width, this.height ) ){
-		$.audio.play( 'powerup' );
-		$.powerupTimers[ this.type ] = 300;
-		$.particleEmitters.push( new $.ParticleEmitter( {
-			x: this.x + this.width / 2,
-			y: this.y + this.height / 2,
-			count: 15,
-			spawnRange: 0,
-			friction: 0.85,
-			minSpeed: 2,
-			maxSpeed: 15,
-			minDirection: 0,
-			maxDirection: $.twopi,
-			hue: 0,
-			saturation: 0
-		} ) );
-		$.powerups.splice( i, 1 );
-		$.powerupsCollected++;
-	}
+	$.room.forEachPlayer(player => {
+		if( player.life > 0 && $.util.arcIntersectingRect( player.x, player.y, player.radius + 2, this.x, this.y, this.width, this.height ) ){
+			$.audio.play( 'powerup' );
+			$.powerupTimers[ this.type ] = 300;
+			$.particleEmitters.push( new $.ParticleEmitter( {
+				x: this.x + this.width / 2,
+				y: this.y + this.height / 2,
+				count: 15,
+				spawnRange: 0,
+				friction: 0.85,
+				minSpeed: 2,
+				maxSpeed: 15,
+				minDirection: 0,
+				maxDirection: $.twopi,
+				hue: 0,
+				saturation: 0
+			} ) );
+			$.powerups.splice( i, 1 );
+			$.powerupsCollected++;
+		}
+	})
 };
 
 /*==============================================================================
@@ -78,12 +80,12 @@ $.Powerup.prototype.render = function( i ) {
 	$.ctxmg.fillRect( this.x - 2, this.y - 2, this.width + 4, this.height + 4 );
 	$.ctxmg.fillStyle = '#555';
 	$.ctxmg.fillRect( this.x - 1, this.y - 1, this.width + 2, this.height + 2 );
-	
+
 	$.ctxmg.fillStyle = '#111';
 	$.ctxmg.fillRect( this.x, this.y, this.width, this.height );
 
 	$.ctxmg.beginPath();
-	$.text( {
+	$.text({
 		ctx: $.ctxmg,
 		x: this.x + this.hpadding,
 		y: this.y + this.vpadding + 1,
@@ -95,12 +97,12 @@ $.Powerup.prototype.render = function( i ) {
 		scale: 1,
 		snap: 0,
 		render: true
-	} );	
+	});
 	$.ctxmg.fillStyle = '#000';
 	$.ctxmg.fill();
 
 	$.ctxmg.beginPath();
-	$.text( {
+	$.text({
 		ctx: $.ctxmg,
 		x: this.x + this.hpadding,
 		y: this.y + this.vpadding,
@@ -112,11 +114,11 @@ $.Powerup.prototype.render = function( i ) {
 		scale: 1,
 		snap: 0,
 		render: true
-	} );	
+	});
 	$.ctxmg.fillStyle = 'hsl(' + this.hue + ', ' + this.saturation + '%, ' + this.lightness + '%)';
 	$.ctxmg.fill();
 
 	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.2)';
 	$.ctxmg.fillRect( this.x, this.y, this.width, this.height / 2 );
-	
+
 }

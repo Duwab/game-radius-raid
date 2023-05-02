@@ -10,6 +10,7 @@ $.RoomManager = function(url) {
     });
 
     this.room = new $.Room();
+    $.room = this.room;
     this.devices = {};
 
     this.socket.on('device-join', ({deviceId}) => {

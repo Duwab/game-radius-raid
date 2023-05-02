@@ -101,7 +101,7 @@ $.init = function() {
 	$.textPops = [];
 	$.levelPops = [];
 	$.powerupTimers = [];
-	$.roomManager = new $.RoomManager(SOCKET_URL);
+	$.roomManager = new $.RoomManager(BASE_URL);
 
 	$.resizecb();
 	$.bindEvents();
@@ -176,7 +176,6 @@ $.reset = function() {
 	$.powerupsCollected = 0;
 	$.score = 0;
 
-	$.hero = new $.Hero();
 	$.roomManager.room.resetPlayers();
 
 	$.levelPops.push( new $.LevelPop( {
@@ -437,26 +436,30 @@ $.renderInterface = function() {
 	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
 	$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height / 2 );
 	// todo: interface for all players
-	$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 40%, 1)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, $.hero.life * healthBar.width, healthBar.height );
-	$.ctxmg.fillStyle = 'hsla(' + $.hero.life * 120 + ', 100%, 75%, 1)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, $.hero.life * healthBar.width, healthBar.height / 2 );
+	$.room.forEachPlayer((player, i) => {
+		if (i > 0) return;
 
-	if( $.hero.takingDamage && $.hero.life > 0.01 ) {
-		$.particleEmitters.push( new $.ParticleEmitter( {
-			x: -$.screen.x + healthBar.x + $.hero.life * healthBar.width,
-			y: -$.screen.y + healthBar.y + healthBar.height / 2,
-			count: 1,
-			spawnRange: 2,
-			friction: 0.85,
-			minSpeed: 2,
-			maxSpeed: 20,
-			minDirection: $.pi / 2 - 0.2,
-			maxDirection: $.pi / 2 + 0.2,
-			hue: $.hero.life * 120,
-			saturation: 100
-		} ) );
-	}
+		$.ctxmg.fillStyle = 'hsla(' + player.life * 120 + ', 100%, 40%, 1)';
+		$.ctxmg.fillRect( healthBar.x, healthBar.y, player.life * healthBar.width, healthBar.height );
+		$.ctxmg.fillStyle = 'hsla(' + player.life * 120 + ', 100%, 75%, 1)';
+		$.ctxmg.fillRect( healthBar.x, healthBar.y, player.life * healthBar.width, healthBar.height / 2 );
+
+		if( player.takingDamage && player.life > 0.01 ) {
+			$.particleEmitters.push( new $.ParticleEmitter( {
+				x: -$.screen.x + healthBar.x + player.life * healthBar.width,
+				y: -$.screen.y + healthBar.y + healthBar.height / 2,
+				count: 1,
+				spawnRange: 2,
+				friction: 0.85,
+				minSpeed: 2,
+				maxSpeed: 20,
+				minDirection: $.pi / 2 - 0.2,
+				maxDirection: $.pi / 2 + 0.2,
+				hue: player.life * 120,
+				saturation: 100
+			} ) );
+		}
+	});
 
 	/*==============================================================================
 	Progress
@@ -619,9 +622,10 @@ $.renderMinimap = function() {
 	$.ctxmg.fillStyle = '#fff';
 	$.ctxmg.fill();
 
-	// todo: render players in minimap
-	$.ctxmg.fillStyle = $.hero.fillStyle;
-	$.ctxmg.fillRect( $.minimap.x + Math.floor( $.hero.x * $.minimap.scale ), $.minimap.y + Math.floor( $.hero.y * $.minimap.scale ), 2, 2 );
+	for (let player of $.players) {
+		$.ctxmg.fillStyle = player.fillStyle;
+		$.ctxmg.fillRect( $.minimap.x + Math.floor( player.x * $.minimap.scale ), $.minimap.y + Math.floor( player.y * $.minimap.scale ), 2, 2 );
+	}
 
 	$.ctxmg.strokeStyle = $.minimap.strokeColor;
 	$.ctxmg.strokeRect( $.minimap.x - 0.5, $.minimap.y - 0.5, $.minimap.width + 1, $.minimap.height + 1 );
@@ -813,25 +817,27 @@ $.updateScreen = function() {
 		ySnap,
 		yModify;
 
-	// todo: move screen depending on players positions
-	if( $.hero.x < $.cw / 2 ) {
-		xModify = $.hero.x / $.cw;
-	} else if( $.hero.x > $.ww - $.cw / 2 ) {
-		xModify = 1 - ( $.ww - $.hero.x ) / $.cw;
-	} else {
-		xModify = 0.5;
-	}
+	const leadPlayer = $.room.getFirstActiveUser();
+	if (leadPlayer) {
+		if( leadPlayer.x < $.cw / 2 ) {
+			xModify = leadPlayer.x / $.cw;
+		} else if( leadPlayer.x > $.ww - $.cw / 2 ) {
+			xModify = 1 - ( $.ww - leadPlayer.x ) / $.cw;
+		} else {
+			xModify = 0.5;
+		}
 
-	if( $.hero.y < $.ch / 2 ) {
-		yModify = $.hero.y / $.ch;
-	} else if( $.hero.y > $.wh - $.ch / 2 ) {
-		yModify = 1 - ( $.wh - $.hero.y ) / $.ch;
-	} else {
-		yModify = 0.5;
-	}
+		if( leadPlayer.y < $.ch / 2 ) {
+			yModify = leadPlayer.y / $.ch;
+		} else if( leadPlayer.y > $.wh - $.ch / 2 ) {
+			yModify = 1 - ( $.wh - leadPlayer.y ) / $.ch;
+		} else {
+			yModify = 0.5;
+		}
 
-	xSnap = ( ( $.cw * xModify - $.hero.x ) - $.screen.x ) / 30;
-	ySnap = ( ( $.ch * yModify - $.hero.y ) - $.screen.y ) / 30;
+		xSnap = ( ( $.cw * xModify - leadPlayer.x ) - $.screen.x ) / 30;
+		ySnap = ( ( $.ch * yModify - leadPlayer.y ) - $.screen.y ) / 30;
+	}
 
 	// ease to new coordinates
 	$.screen.x += xSnap * $.dt;
@@ -920,15 +926,18 @@ $.updateLevel = function() {
 };
 
 $.updatePowerupTimers = function() {
-	//todo: manage powerups BY players or for ALL player
+	/** @type $.Room */
+	const room = $.roomManager.room;
 	// HEALTH
 	if( $.powerupTimers[ 0 ] > 0 ){
-		if( $.hero.life < 1 ) {
-			$.hero.life += 0.001;
-		}
-		if( $.hero.life > 1 ) {
-			$.hero.life = 1;
-		}
+		room.forEachPlayer(player => {
+			if( player.life < 1 ) {
+				player.life += 0.001;
+			}
+			if( player.life > 1 ) {
+				player.life = 1;
+			}
+		});
 		$.powerupTimers[ 0 ] -= $.dt;
 	}
 
@@ -942,34 +951,35 @@ $.updatePowerupTimers = function() {
 
 	// FAST SHOT
 	if( $.powerupTimers[ 2 ] > 0 ){
-		$.hero.weapon.fireRate = 2;
-		$.hero.weapon.bullet.speed = 14;
+		room.setPlayersValue('weapon.fireRate', 2);
+		room.setPlayersValue('weapon.bullet.speed', 14);
 		$.powerupTimers[ 2 ] -= $.dt;
 	} else {
-		$.hero.weapon.fireRate = 5;
-		$.hero.weapon.bullet.speed = 10;
+		room.setPlayersValue('weapon.fireRate', 5);
+		room.setPlayersValue('weapon.bullet.speed', 10);
 	}
 
 	// TRIPLE SHOT
 	if( $.powerupTimers[ 3 ] > 0 ){
-		$.hero.weapon.count = 3;
+		room.setPlayersValue('weapon.count', 3);
 		$.powerupTimers[ 3 ] -= $.dt;
 	} else {
-		$.hero.weapon.count = 1;
+		room.setPlayersValue('weapon.count', 1);
 	}
 
 	// PIERCE SHOT
 	if( $.powerupTimers[ 4 ] > 0 ){
-		$.hero.weapon.bullet.piercing = 1;
+		room.setPlayersValue('weapon.bullet.piercing', 1);
 		$.powerupTimers[ 4 ] -= $.dt;
 	} else {
-		$.hero.weapon.bullet.piercing = 0;
+		room.setPlayersValue('weapon.bullet.piercing', 0);
 	}
 };
 
 $.spawnPowerup = function( x, y ) {
 	if( Math.random() < 0.1 ) {
-		var min = ( $.hero.life < 0.9 ) ? 0 : 1,
+		const woundedPlayer = $.room.findPlayer(p => p.life < .9);
+		var min = woundedPlayer ? 0 : 1,
 			type = Math.floor( $.util.rand( min, $.definitions.powerups.length ) ),
 			params = $.definitions.powerups[ type ];
 		params.type = type;
@@ -1375,7 +1385,6 @@ $.setupStates = function() {
 			i = $.levelPops.length; while( i-- ){ $.levelPops[ i ].update( i ) }
 			i = $.bullets.length; while( i-- ){ $.bullets[ i ].update( i ) }
 			i = $.players.length; while( i-- ){ $.players[ i ].update( i ) }
-		$.hero.update();
 
 		// render entities
 		$.clearScreen();
@@ -1388,7 +1397,6 @@ $.setupStates = function() {
 		i = $.textPops.length; while( i-- ){ $.textPops[ i ].render( i ) }
 		i = $.bullets.length; while( i-- ){ $.bullets[ i ].render( i ) }
 		i = $.players.length; while( i-- ){ $.players[ i ].render( i ) }
-		$.hero.render();
 		$.ctxmg.restore();
 		i = $.levelPops.length; while( i-- ){ $.levelPops[ i ].render( i ) }
 		$.renderInterface();
@@ -1396,7 +1404,7 @@ $.setupStates = function() {
 
 		// handle gameover
 		// todo: if all players are dead...
-		if( $.hero.life <= 0 ) {
+		if( $.room.areAllPlayersDead() ) {
 			var alpha = ( ( $.gameoverTick / $.gameoverTickMax ) * 0.8 );
 				alpha = Math.min( 1, Math.max( 0, alpha ) );
 			$.ctxmg.fillStyle = 'hsla(0, 100%, 0%, ' + alpha + ')';
@@ -1411,26 +1419,26 @@ $.setupStates = function() {
 				$.audio.play( 'death' );
 				$.rumble.level = 25;
 				// todo: player destruction
-				$.explosions.push( new $.Explosion( {
-					x: $.hero.x + $.util.rand( -10, 10 ),
-					y: $.hero.y + $.util.rand( -10, 10 ),
-					radius: 50,
-					hue: 0,
-					saturation: 0
-				} ) );
-				$.particleEmitters.push( new $.ParticleEmitter( {
-					x: $.hero.x,
-					y: $.hero.y,
-					count: 45,
-					spawnRange: 10,
-					friction: 0.95,
-					minSpeed: 2,
-					maxSpeed: 20,
-					minDirection: 0,
-					maxDirection: $.twopi,
-					hue: 0,
-					saturation: 0
-				} ) );
+				// $.explosions.push( new $.Explosion( {
+				// 	x: $.hero.x + $.util.rand( -10, 10 ),
+				// 	y: $.hero.y + $.util.rand( -10, 10 ),
+				// 	radius: 50,
+				// 	hue: 0,
+				// 	saturation: 0
+				// } ) );
+				// $.particleEmitters.push( new $.ParticleEmitter( {
+				// 	x: $.hero.x,
+				// 	y: $.hero.y,
+				// 	count: 45,
+				// 	spawnRange: 10,
+				// 	friction: 0.95,
+				// 	minSpeed: 2,
+				// 	maxSpeed: 20,
+				// 	minDirection: 0,
+				// 	maxDirection: $.twopi,
+				// 	hue: 0,
+				// 	saturation: 0
+				// } ) );
 				for( var i = 0; i < $.powerupTimers.length; i++ ){
 					$.powerupTimers[ i ] = 0;
 				}
