@@ -81,6 +81,7 @@ $.Room.prototype.resetPlayers = function() {
     $.players = Object.values($.roomManager.devices)
         .map(({id, member}) => member && new $.Player(id))
         .filter(p => p);
+    this.lastActiveUser = null;
 };
 
 $.Room.prototype.getFirstActiveUser = function() {
