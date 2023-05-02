@@ -5,6 +5,7 @@
 $.Room = function({id, token} = {}) {
     this.id = id;
     this.token = token;
+    this.lastActiveUser = null;
 }
 
 $.Room.prototype.init = function() {
@@ -83,7 +84,11 @@ $.Room.prototype.resetPlayers = function() {
 };
 
 $.Room.prototype.getFirstActiveUser = function() {
-    return this.getLivingPlayers()[0];
+    const firstActiveUser = this.getLivingPlayers()[0];
+    if (firstActiveUser) {
+        this.lastActiveUser = firstActiveUser;
+    }
+    return this.lastActiveUser;
 };
 
 $.Room.prototype.areAllPlayersDead = function() {
@@ -94,7 +99,7 @@ $.Room.prototype.areAllPlayersDead = function() {
 
 $.Room.prototype.getLivingPlayers = function() {
     return $.players.filter(p => {
-        const isAlive = p.life;
+        const isAlive = p.life > 0;
         const deviceInfo = $.roomManager.devices[p.id];
 
         return isAlive && deviceInfo.connected && deviceInfo.member;
