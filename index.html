@@ -37,6 +37,19 @@
 				position: absolute;
 				top: 0;
 			}
+
+			#qrcode-wrapper {
+				display: block;
+				position: absolute;
+				top: 270px;
+				left: 70px;
+				padding: 5px;
+				background: green;
+			}
+
+			#qrcode-wrapper.hide {
+				display: none;
+			}
 		</style>
 	</head>
 	<body>
@@ -49,13 +62,20 @@
 				<canvas id="cmg"></canvas>
 				<canvas id="cfg"></canvas>
 			</div>
+			<div id="qrcode-wrapper">
+				<div id="qrcode"></div>
+			</div>
 		</div>
 		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 		<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+		<script
+			src="https://code.jquery.com/jquery-1.12.4.min.js"
+			integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+			crossorigin="anonymous"></script>
+		<script type="text/javascript" src="js/lib/qrcode.js"></script>
+
 		<script>var $ = {};</script>
-		<script>window.SOCKET_URL = 'http://localhost:8080';</script>
-		<script>window.BASE_URL = 'http://localhost:8080';</script>
-		<!-- <script>window.SOCKET_URL = '__SOCKET_URL__';</script> -->
+		<script>window.BASE_URL = 'https://game.test.duwab.com';</script>
 		<!-- <script>window.BASE_URL = '__BASE_URL__';</script> -->
 		<script src="js/jsfxr.js"></script>
 		<script src="js/util.js"></script>

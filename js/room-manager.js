@@ -74,6 +74,14 @@ $.RoomManager.prototype.init = async function() {
     await this.createDeviceIdIfNotExists();
     await this.createRoomIfNotExists();
     console.log('room created', this.roomId);
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        text: `https://game.test.duwab.com?room=${this.roomId}`,
+        width: 128,
+        height: 128,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
+        correctLevel : QRCode.CorrectLevel.H
+    });
     this.socket.emit('join-room', { roomId: this.roomId, token: this.roomToken });
 
     return new Promise((resolve, reject) => {

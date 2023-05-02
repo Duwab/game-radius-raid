@@ -996,6 +996,8 @@ $.setState = function( state ) {
 	// handle clean up between states
 	$.buttons.length = 0;
 
+	$.switchQRCode(['menu', 'pause', 'gameover'].includes(state));
+
 	if( state == 'menu' ) {
 		$.mouse.down = 0;
 		$.mouse.ax = 0;
@@ -1565,6 +1567,10 @@ $.setupStates = function() {
 		$.ctxmg.fillStyle = '#fff';
 		$.ctxmg.fill();
 	};
+}
+
+$.switchQRCode = function(on) {
+	document.getElementById("qrcode-wrapper").classList[on ? 'remove' : 'add']('hide');
 }
 
 /*==============================================================================
