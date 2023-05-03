@@ -1028,6 +1028,7 @@ $.setState = function( state ) {
 			scale: 3,
 			title: 'PLAY',
 			action: function() {
+				if (!$.room.players || !$.room.players.length) return;
 				$.reset();
 				$.audio.play( 'levelup' );
 				$.setState( 'play' );
