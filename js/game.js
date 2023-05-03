@@ -17,8 +17,9 @@ $.init = function() {
 	$.ctxbg4 = $.cbg4.getContext( '2d' );
 	$.ctxmg = $.cmg.getContext( '2d' );
 	$.ctxfg = $.cfg.getContext( '2d' );
-	$.cw = $.cmg.width = $.cfg.width = 800;
-	$.ch = $.cmg.height = $.cfg.height = 600;
+	const { width, height } = $.computeMapSize();
+	$.cw = $.cmg.width = $.cfg.width = width;
+	$.ch = $.cmg.height = $.cfg.height = height;
 	$.wrap.style.width = $.wrapInner.style.width = $.cw + 'px';
 	$.wrap.style.height = $.wrapInner.style.height = $.ch + 'px';
 	$.wrap.style.marginLeft = ( -$.cw / 2 ) - 10 + 'px';
@@ -115,6 +116,20 @@ $.init = function() {
 	$.setState( 'menu' );
 	$.loop();
 };
+
+$.computeMapSize = () => {
+	const {innerWidth: screenWidth, innerHeight: screenHeight} = window;
+	const defaultWidth = 800;
+	const defaultHeight = 600;
+	const widthRatio = screenWidth / defaultWidth;
+	const heightRatio = screenHeight / defaultHeight;
+	const ratio = Math.max(Math.min(widthRatio, heightRatio) * 0.9, 1);
+
+	return {
+		width: defaultWidth * ratio,
+		height: defaultHeight * ratio,
+	};
+}
 
 /*==============================================================================
 Reset
