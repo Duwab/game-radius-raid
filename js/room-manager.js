@@ -9,7 +9,7 @@ $.RoomManager = function(url) {
         this.init();
     });
 
-    this.room = new $.Room();
+    this.room = new $.Room({ id: this.roomId, token: this.roomToken });
     $.room = this.room;
     this.devices = {};
 
@@ -110,6 +110,8 @@ $.RoomManager.prototype.createRoomIfNotExists = async function() {
         const { id, token } = await this.createRoom();
         this.roomId = id;
         this.roomToken = token;
+        this.room = $.Room({ id, token });
+        $.room = this.room;
         localStorage.setItem("roomId", id);
         localStorage.setItem("roomToken", token);
         console.log('created room', this.roomId);
@@ -117,7 +119,7 @@ $.RoomManager.prototype.createRoomIfNotExists = async function() {
 }
 
 $.RoomManager.prototype.createRoom = async function() {
-    if (this.room) throw new Error('won\'t create romm if one already exists');
+    if (this.room && this.room.id) throw new Error('won\'t create romm if one already exists');
 
     const { data } = await axios.post(`${BASE_URL}/api/room`);
 
