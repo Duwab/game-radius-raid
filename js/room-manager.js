@@ -110,7 +110,7 @@ $.RoomManager.prototype.createRoomIfNotExists = async function() {
         const { id, token } = await this.createRoom();
         this.roomId = id;
         this.roomToken = token;
-        this.room = $.Room({ id, token });
+        this.room = new $.Room({ id, token });
         $.room = this.room;
         localStorage.setItem("roomId", id);
         localStorage.setItem("roomToken", token);
