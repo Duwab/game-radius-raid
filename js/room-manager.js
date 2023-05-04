@@ -13,8 +13,11 @@ $.RoomManager = function(url) {
     $.room = this.room;
     this.devices = {};
 
-    this.socket.on('device-join', ({deviceId}) => {
+    this.socket.on('device-join', ({deviceId, ...remaining}) => {
         console.log('device-join', deviceId);
+        joinDevice({deviceId, ...remaining});
+    });
+    const joinDevice = ({deviceId}) => {
         if (!this.devices[deviceId]) {
             this.devices[deviceId] = {
                 id: deviceId,
@@ -34,20 +37,35 @@ $.RoomManager = function(url) {
                 this.room.onDeviceReconnect(deviceId);
             }
         }
-    });
-    this.socket.on('device-leave', ({deviceId}) => {
+    }
+    this.socket.on('device-leave', ({deviceId, ...remaining}) => {
         console.log('device-leave', deviceId);
+        leaveDevice({deviceId, ...remaining});
+    });
+    const leaveDevice = ({deviceId}) => {
         if (!this.devices[deviceId]) return console.error('unregistered device', deviceId);
 
         this.devices[deviceId].member = false;
         this.room.onDeviceLeave(deviceId);
-    });
+
+    }
     this.socket.on('device-disconnected', ({deviceId}) => {
         console.log('device-disconnected', deviceId);
         if (!this.devices[deviceId]) return;
 
         this.devices[deviceId].connected = false;
         this.room.onDeviceDisconnected(deviceId);
+    });
+    this.socket.on('devices', ({devices: newDeviceList}) => {
+        for (let deviceMessage of newDeviceList) {
+            joinDevice(deviceMessage);
+        }
+
+        for (let localDeviceId in this.devices) {
+            if (!newDeviceList.find((deviceMessage) => deviceMessage.deviceId === localDeviceId)) {
+                leaveDevice({deviceId: localDeviceId});
+            }
+        }
     });
     this.socket.on('control', ({
         id,
