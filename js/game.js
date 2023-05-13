@@ -424,35 +424,35 @@ $.renderInterface = function() {
 	/*==============================================================================
 	Health
 	==============================================================================*/
-	$.ctxmg.beginPath();
-	var healthText = $.text( {
-		ctx: $.ctxmg,
-		x: 20,
-		y: 20,
-		text: 'HEALTH',
-		hspacing: 1,
-		vspacing: 1,
-		halign: 'top',
-		valign: 'left',
-		scale: 2,
-		snap: 1,
-		render: 1
-	} );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.5)';
-	$.ctxmg.fill();
-	var healthBar = {
-		x: healthText.ex + 10,
-		y: healthText.sy,
-		width: 110,
-		height: 10
-	};
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 1)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height );
-	$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
-	$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height / 2 );
-	// todo: interface for all players
+	var firstHealthBar;
 	$.room.forEachPlayer((player, i) => {
-		if (i > 0) return;
+		$.ctxmg.beginPath();
+		var healthText = $.text( {
+			ctx: $.ctxmg,
+			x: 20,
+			y: 20 * (i + 1),
+			text: 'PLAYER ' + i,
+			hspacing: 1,
+			vspacing: 1,
+			halign: 'top',
+			valign: 'left',
+			scale: 2,
+			snap: 1,
+			render: 1
+		} );
+		$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.5)';
+		$.ctxmg.fill();
+		var healthBar = {
+			x: healthText.ex + 10,
+			y: healthText.sy,
+			width: 110,
+			height: 10
+		};
+		firstHealthBar = firstHealthBar || healthBar;
+		$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 1)';
+		$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height );
+		$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.25)';
+		$.ctxmg.fillRect( healthBar.x, healthBar.y, healthBar.width, healthBar.height / 2 );
 
 		$.ctxmg.fillStyle = 'hsla(' + player.life * 120 + ', 100%, 40%, 1)';
 		$.ctxmg.fillRect( healthBar.x, healthBar.y, player.life * healthBar.width, healthBar.height );
@@ -482,7 +482,7 @@ $.renderInterface = function() {
 	$.ctxmg.beginPath();
 	var progressText = $.text( {
 		ctx: $.ctxmg,
-		x: healthBar.x + healthBar.width + 40,
+		x: firstHealthBar.x + firstHealthBar.width + 40,
 		y: 20,
 		text: 'PROGRESS',
 		hspacing: 1,
@@ -498,8 +498,8 @@ $.renderInterface = function() {
 	var progressBar = {
 		x: progressText.ex + 10,
 		y: progressText.sy,
-		width: healthBar.width,
-		height: healthBar.height
+		width: firstHealthBar.width,
+		height: firstHealthBar.height
 	};
 	$.ctxmg.fillStyle = 'hsla(0, 0%, 20%, 1)';
 	$.ctxmg.fillRect( progressBar.x, progressBar.y, progressBar.width, progressBar.height );
@@ -1393,15 +1393,9 @@ $.setupStates = function() {
 		$.updateScreen();
 		$.updateLevel();
 		$.updatePowerupTimers();
-		// $.spawnEnemies();
+		$.spawnEnemies();
 		// RAF:
 		//   * pas voir le hero
-		//   * s'assurer qu'on va checker la bonne url
-		//   * remettre le header avec de bonnes infos
-		//   * un refresh des devices au reload de la page
-		//   * faire le déploiements
-		//   * mettre un lien pour join la room direct
-		//   * empêcher le play si 0 joueurs (puis revoir la règle du game over)
 		//   * ajouter un bouton "share" et "copy link"
 		$.enemyOffsetMod += ( $.slow ) ? $.dt / 3 : $.dt;
 
