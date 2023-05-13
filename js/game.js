@@ -1395,7 +1395,6 @@ $.setupStates = function() {
 		$.updatePowerupTimers();
 		$.spawnEnemies();
 		// RAF:
-		//   * pas voir le hero
 		//   * ajouter un bouton "share" et "copy link"
 		$.enemyOffsetMod += ( $.slow ) ? $.dt / 3 : $.dt;
 
