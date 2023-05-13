@@ -7,6 +7,22 @@ $.Room = function({id, token} = {}) {
     this.token = token;
     this.lastActiveUser = null;
     this.refreshDevicesListDisplay();
+    this.colorsByDevice = $.getStoredJSON('colorsByDevice') || {};
+}
+
+$.getStoredJSON = function(key) {
+    const value = localStorage.getItem(key);
+    if (value) {
+        try {
+            return JSON.parse(value);
+        } catch(e) {
+            console.error('could not parse', key, value);
+        }
+    }
+}
+
+$.storeJSON = function(key, value) {
+    return localStorage.setItem(key, JSON.stringify(value));
 }
 
 $.Room.prototype.init = function() {
@@ -52,8 +68,27 @@ $.Room.prototype.onControl = function(deviceId, {
 
 $.Room.prototype.onDeviceJoin = function(deviceId) {
     console.log('push new player', deviceId);
-    $.players.push(new $.Player(deviceId));
+    if (!this.colorsByDevice[deviceId]) {
+        this.colorsByDevice[deviceId] = this.getAvailableColor();
+        $.storeJSON('colorsByDevice', this.colorsByDevice);
+    }
+    $.players.push(new $.Player(deviceId, this.colorsByDevice[deviceId]));
     this.refreshDevicesListDisplay();
+};
+
+$.Room.prototype.getAvailableColor = function() {
+    const colors = Object.keys($.definitions.players.colors);
+    const usedColors = this.mapPlayers(player => player.color);
+    const availableColors = colors.filter(color => !usedColors.includes(color));
+
+    return this.getRandomColor(availableColors);
+};
+
+$.Room.prototype.getRandomColor = function(list = []) {
+    const colors = list && list.length ? list : Object.keys($.definitions.players.colors);
+    const randomPos = Math.floor(Math.random() * colors.length);
+
+    return colors[randomPos];
 };
 
 $.Room.prototype.onDeviceLeave = function(deviceId) {
@@ -65,7 +100,9 @@ $.Room.prototype.onDeviceLeave = function(deviceId) {
 $.Room.prototype.refreshDevicesListDisplay = () => {
     const htmls = $.players.map(p => {
         const deviceInfo = $.roomManager.devices[p.id];
-        return `<span class="player ${!deviceInfo.connected && 'disconnected'}"></span>`;
+        const htmlClass = `class="player ${!deviceInfo.connected && 'disconnected'}"`;
+        const htmlStyle = `style="background-color: ${p.fillStyle}"`;
+        return `<span ${htmlClass} ${htmlStyle}></span>`;
     });
     document.getElementById('players-list').innerHTML = htmls.join('');
 }
@@ -91,7 +128,7 @@ $.Room.prototype.getRandomPlayer = function() {
 
 $.Room.prototype.resetPlayers = function() {
     $.players = Object.values($.roomManager.devices)
-        .map(({id, member}) => member && new $.Player(id))
+        .map(({id, member}) => member && new $.Player(id, this.colorsByDevice[id]))
         .filter(p => p);
     this.lastActiveUser = null;
 };
@@ -123,6 +160,10 @@ $.Room.prototype.setPlayersValue = function(path, value) {
     $.players.forEach(p => {
         _set(p, path, value);
     });
+};
+
+$.Room.prototype.mapPlayers = function(callback) {
+    return $.players.map(callback);
 };
 
 $.Room.prototype.forEachPlayer = function(callback) {

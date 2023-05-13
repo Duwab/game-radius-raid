@@ -84,7 +84,17 @@ $.definitions.audio = {
 Players
 ==============================================================================*/
 $.definitions.players = {
-	vmax: 6
+	vmax: 6,
+	colors: {
+		white: '#fff',
+		blue: '#0000ff',
+		yellow: 'yellow',
+		pink: 'pink',
+		orange: 'orange',
+		purple: 'purple',
+		green: 'green',
+		red: '#ff0000',
+	}
 };
 
 /*==============================================================================

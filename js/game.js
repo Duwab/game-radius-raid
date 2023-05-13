@@ -441,6 +441,7 @@ $.renderInterface = function() {
 			render: 1
 		} );
 		$.ctxmg.fillStyle = 'hsla(0, 0%, 100%, 0.5)';
+		$.ctxmg.fillStyle = player.fillStyle;
 		$.ctxmg.fill();
 		var healthBar = {
 			x: healthText.ex + 10,

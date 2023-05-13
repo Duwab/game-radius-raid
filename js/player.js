@@ -1,7 +1,7 @@
 /*==============================================================================
 Init
 ==============================================================================*/
-$.Player = function(playerId) {
+$.Player = function(playerId, color) {
 	this.id = playerId;
 	this.control = { state: {} };
 	this.x = $.ww / 2;
@@ -14,7 +14,8 @@ $.Player = function(playerId) {
 	this.radius = 10;
 	this.life = 1;
 	this.takingDamage = 0;
-	this.fillStyle = '#fff';
+	this.color = color;
+	this.fillStyle = $.definitions.players.colors[color];
 	this.weapon = {
 		fireRate: 5,
 		fireRateTick: 5,
