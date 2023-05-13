@@ -94,8 +94,8 @@ $.RoomManager.prototype.init = async function() {
     console.log('room created', this.roomId);
     var qrcode = new QRCode(document.getElementById("qrcode"), {
         text: `https://game.test.duwab.com?room=${this.roomId}`,
-        width: 128,
-        height: 128,
+        width: 200,
+        height: 200,
         colorDark : "#000000",
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H
