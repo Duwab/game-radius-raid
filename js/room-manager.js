@@ -92,10 +92,18 @@ $.RoomManager.prototype.init = async function() {
     await this.createDeviceIdIfNotExists();
     await this.createRoomIfNotExists();
     console.log('room created', this.roomId);
-    var qrcode = new QRCode(document.getElementById("qrcode"), {
+
+    const size = 200;
+	const left = $.cw / 2 - size - 100 - 70;
+	const top = $.ch / 2 - size / 2 + 50;
+    const wrapperEl = document.getElementById("qrcode-wrapper");
+    const qrEl = document.getElementById("qrcode");
+    wrapperEl.style.top = `${top}px`;
+    wrapperEl.style.left = `${left}px`;
+    var qrcode = new QRCode(qrEl, {
         text: `https://game.test.duwab.com?room=${this.roomId}`,
-        width: 200,
-        height: 200,
+        width: size,
+        height: size,
         colorDark : "#000000",
         colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.H

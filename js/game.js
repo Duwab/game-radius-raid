@@ -1394,8 +1394,6 @@ $.setupStates = function() {
 		$.updateLevel();
 		$.updatePowerupTimers();
 		$.spawnEnemies();
-		// RAF:
-		//   * ajouter un bouton "share" et "copy link"
 		$.enemyOffsetMod += ( $.slow ) ? $.dt / 3 : $.dt;
 
 		// update entities
