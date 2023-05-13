@@ -734,6 +734,8 @@ var keyCodes = {
 	s: 83,
 	w: 87,
 	z: 90,
+	p: 80,
+	escape: 27,
 	space: 32,
 	up: 38,
 	right: 39,
@@ -760,7 +762,7 @@ $.keydowncb = function( e ) {
 	var e = ( e.keyCode ? e.keyCode : e.which );
 	if( e === 70 ){ $.keys.state.f = 1; }
 	if( e === 77 ){ $.keys.state.m = 1; }
-	if( e === 80 ){ $.keys.state.p = 1; }
+	if( [keyCodes.p, keyCodes.escape].includes(e) ){ $.keys.state.p = 1; }
 
 	for (var playerControl of $.playersControls) {
 		for (var [i, name] of Object.entries(directionNames)) {
@@ -775,7 +777,7 @@ $.keyupcb = function( e ) {
 	var e = ( e.keyCode ? e.keyCode : e.which );
 	if( e === 70 ){ $.keys.state.f = 0; }
 	if( e === 77 ){ $.keys.state.m = 0; }
-	if( e === 80 ){ $.keys.state.p = 0; }
+	if( [keyCodes.p, keyCodes.escape].includes(e) ){ $.keys.state.p = 0; }
 
 	for (var playerControl of $.playersControls) {
 		for (var [i, name] of Object.entries(directionNames)) {
@@ -796,7 +798,7 @@ $.resizecb = function( e ) {
 
 $.blurcb = function() {
 	if( $.state == 'play' ){
-		$.setState( 'pause' );
+		// $.setState( 'pause' );
 	}
 }
 
@@ -1391,7 +1393,16 @@ $.setupStates = function() {
 		$.updateScreen();
 		$.updateLevel();
 		$.updatePowerupTimers();
-		$.spawnEnemies();
+		// $.spawnEnemies();
+		// RAF:
+		//   * pas voir le hero
+		//   * s'assurer qu'on va checker la bonne url
+		//   * remettre le header avec de bonnes infos
+		//   * un refresh des devices au reload de la page
+		//   * faire le déploiements
+		//   * mettre un lien pour join la room direct
+		//   * empêcher le play si 0 joueurs (puis revoir la règle du game over)
+		//   * ajouter un bouton "share" et "copy link"
 		$.enemyOffsetMod += ( $.slow ) ? $.dt / 3 : $.dt;
 
 		// update entities
@@ -1469,7 +1480,11 @@ $.setupStates = function() {
 
 		// listen for pause
 		if( $.keys.pressed.p ){
-			$.setState( 'pause' );
+			if ($.state === 'pause') {
+				$.setState( 'play' )
+			} else if ($.state === 'play') {
+				$.setState( 'pause' )
+			}
 		}
 
 		// always listen for autofire toggle
